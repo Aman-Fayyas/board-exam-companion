@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Boardmate browser smoke tests</title>
+<style>body{font:15px system-ui,sans-serif;margin:20px;background:#f5f4ed;color:#183632}h1{font-size:22px}#results{padding:0;list-style:none}li{margin:8px 0;padding:10px;border-radius:10px;background:#fff}li.pass{border-left:4px solid #55966b}li.fail{border-left:4px solid #c55}iframe{width:360px;height:740px;border:1px solid #bbb;border-radius:16px;background:white}small{color:#60726a}</style></head>
+<body>
+<h1>Boardmate · browser smoke tests</h1>
+<p>Runs checks against the actual app in a compact 360 × 740 viewport.</p>
+<ul id="results" aria-live="polite"></ul>
+<iframe id="app-frame" src="../index.html"></iframe>
+<script>
+(() => {
+  const out = document.getElementById('results');
+  const report = (name, ok, detail = '') => {
+    const li = document.createElement('li'); li.className = ok ? 'pass' : 'fail';
+    li.textContent = `${ok ? 'PASS' : 'FAIL'} — ${name}${detail ? ` · ${detail}` : ''}`; out.appendChild(li);
+  };
+  const frame = document.getElementById('app-frame');
+  frame.addEventListener('load', () => {
+    const win = frame.contentWindow, doc = frame.contentDocument;
+    const api = win.__BOARDMATE_TEST__;
+    if (!api) { report('App test API available', false); return; }
+    const subjects = api.subjects();
+    report('Exactly nine subjects', subjects.length === 9, `${subjects.length} found`);
+    report('Science subjects are separate', ['biology','chemistry','physics'].every(id => subjects.some(s => s.id === id)));
+    report('No chapters are preloaded', subjects.every(s => s.chapterCount === 0));
+
+    api.openSubject('biology');
+    const detail = doc.querySelector('#subject-title')?.textContent;
+    const structure = [...doc.querySelectorAll('.template-card strong')].map(el => el.textContent.trim());
+    report('Subject detail opens', detail === 'Biology', detail || 'missing title');
+    report('Chapter workspace stays empty', /No chapters added yet/i.test(doc.body.textContent));
+    report('All four chapter sections are present', ['Value points','Previous year questions','Formula bank & key facts','Quick revision'].every(t => structure.includes(t)));
+
+    api.openView('subjects');
+    const search = doc.querySelector('#subject-search');
+    search.value = 'chem'; search.dispatchEvent(new win.Event('input', { bubbles: true }));
+    report('Subject search filters results', doc.body.textContent.includes('Chemistry') && !doc.body.textContent.includes('Biology'));
+    api.openView('planner');
+    api.clearTasks();
+    api.addTask('Smoke test: revise notes', 'maths', '2026-11-12');
+    let task = doc.querySelector('.task-item');
+    report('Planner adds a task', !!task && task.textContent.includes('Smoke test: revise notes'));
+    task?.querySelector('[data-toggle-task]')?.click();
+    report('Planner marks a task complete', api.state().tasks[0]?.done === true);
+    task = doc.querySelector('.task-item');
+    task?.querySelector('[data-delete-task]')?.click();
+    report('Planner deletes a task', api.state().tasks.length === 0);
+
+    const overflow = doc.documentElement.scrollWidth > doc.documentElement.clientWidth;
+    report('No horizontal overflow at 360px', !overflow, `${doc.documentElement.clientWidth}px viewport`);
+    report('Main navigation has three destinations', doc.querySelectorAll('.nav-item').length === 3);
+    report('Service worker API supported in test browser', 'serviceWorker' in win.navigator);
+  });
+})();
+</script>
+</body></html>
