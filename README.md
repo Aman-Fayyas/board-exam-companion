@@ -44,7 +44,7 @@ Run the automated logic and structure checks with `node --test tests/node-smoke.
 - Compact-width bottom navigation with three destinations.
 - Interactive controls are designed around 48 CSS-pixel minimum heights where practical, visible keyboard focus, and clear labels.
 - Responsive subject grids, safe-area padding, readable system fonts, and reduced-motion support.
-- Warm off-white, deep green, teal and terracotta palette; no purple/black theme.
+- Fresh sky-blue, deep navy and coral palette; no purple/black theme. The fourth bottom-navigation destination opens a study guide with a 25-minute focus timer, active-recall and spaced-revision methods, exam-answer tips, and a balanced study routine.
 
 ## Roadmap after chapter lists arrive
 
