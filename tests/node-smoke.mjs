@@ -47,9 +47,9 @@ test('planner and guide links are available from home', () => {
 });
 
 test('PWA manifest and offline cache use refreshed theme version', () => {
-  assert.equal(manifest.theme_color, '#173b5e');
-  assert.equal(manifest.background_color, '#f1f6fb');
-  assert.match(sw, /boardmate-shell-v2/);
+  assert.equal(manifest.theme_color, '#3e4c32');
+  assert.equal(manifest.background_color, '#f4f1e7');
+  assert.match(sw, /boardmate-shell-v3/);
   assert.match(sw, /addAll\(APP_SHELL\)/);
   assert.match(html, /manifest\.webmanifest/);
 });
@@ -62,8 +62,15 @@ test('responsive and accessibility styles remain present', () => {
   assert.match(css, /\.bottom-nav[\s\S]*grid-template-columns: repeat\(4, 1fr\)/);
 });
 
-test('new palette is blue and coral, not the previous green palette', () => {
-  assert.match(css, /--green-dark: #173b5e/);
-  assert.match(css, /--orange: #e56d58/);
-  assert.doesNotMatch(css, /--green-dark: #173e3a/);
+test('Grain palette uses warm cream, olive and amber', () => {
+  assert.match(css, /--green-dark:#3e4c32/);
+  assert.match(css, /--paper:#f4f1e7/);
+  assert.match(css, /--yellow-soft:#f4ead5/);
+  assert.match(css, /--orange:#ad725b/);
+});
+
+test('planner has task filters and clear-completed action', () => {
+  assert.match(app, /data-task-filter/);
+  assert.match(app, /data-clear-done/);
+  assert.match(app, /taskFilter === "done"/);
 });
