@@ -27,6 +27,8 @@
   let selectedSubjectId = null;
   let searchTerm = "";
   let toastTimer = null;
+  let focusSeconds = 1500;
+  let focusInterval = null;
   let state = loadState();
 
   function loadState() {
@@ -123,6 +125,8 @@
         <div class="section-heading"><div><h2>Your subjects</h2><p>Every subject has its own space</p></div><button class="text-button" type="button" data-nav="subjects">View all</button></div>
         <div class="subject-grid">${SUBJECTS.map(subjectCard).join("")}</div>
 
+        <div class="section-heading"><div><h2>Make today count</h2><p>Tools for a calmer, smarter study routine</p></div><button class="text-button" type="button" data-nav="guide">Open guide</button></div>
+        <div class="quick-link-grid"><button class="quick-link" type="button" data-nav="guide"><strong>25-minute focus</strong><small>Short, distraction-light study sessions</small></button><button class="quick-link" type="button" data-nav="planner"><strong>Plan your day</strong><small>Turn a big goal into small tasks</small></button></div>
         <div class="info-strip">
           <span class="info-icon">${icon("spark")}</span>
           <div><strong>Chapters are intentionally empty</strong><p>No chapter names, formulas or PYQs have been preloaded. Once you send your chapter list, we can build the exact content around your syllabus.</p></div>
@@ -180,6 +184,39 @@
         <div class="template-grid">${CHAPTER_SECTIONS.map(sectionCard).join("")}</div>
         <p class="small-note">These are structure previews only. There are no chapter titles, PYQs, notes or formulas in the app yet.</p>
       </section>`;
+  }
+
+
+  function renderGuide() {
+    app.innerHTML = `<section aria-labelledby="guide-title"><p class="eyebrow">Study smarter, not longer</p><h1 class="page-heading" id="guide-title">Your study guide</h1><p class="page-subtitle">Practical methods, gentle reminders and a focus timer. No chapter content is assumed.</p>
+    <div class="guide-hero"><h2>One focused session is a win.</h2><p>Pick one small task, put distractions aside, and give it your attention. Take a proper break afterwards.</p></div>
+    <div class="section-heading"><div><h2>Focus timer</h2><p>A simple 25-minute study block</p></div></div>
+    <div class="focus-clock"><div class="clock-face" id="focus-clock">25:00</div><span class="clock-caption" id="focus-caption">Ready when you are · Take a 5-minute break afterwards</span><div class="clock-actions"><button type="button" data-focus="toggle" id="focus-toggle">Start focus</button><button type="button" class="secondary" data-focus="reset">Reset</button></div></div>
+    <div class="section-heading"><div><h2>Methods that actually help</h2><p>Use these across every subject</p></div></div>
+    <div class="guide-grid">
+    <article class="guide-card"><span class="tip-label">01 · Remembering</span><h3>Active recall</h3><p>Read a small section, close the book, and explain the idea in your own words. Check what you missed, then try again.</p></article>
+    <article class="guide-card"><span class="tip-label">02 · Long-term memory</span><h3>Spaced revision</h3><p>Revisit a topic after a day, a few days, and a week. Short repeat sessions usually beat one huge last-minute reread.</p></article>
+    <article class="guide-card"><span class="tip-label">03 · Exam practice</span><h3>Practise under time</h3><p>Use a timer for question practice. After checking, write down why an answer was incomplete and what you will do differently.</p></article>
+    <article class="guide-card"><span class="tip-label">04 · Better notes</span><h3>Keep notes useful</h3><p>Use headings, keywords, diagrams and short explanations. Avoid copying entire paragraphs when a few meaningful points will do.</p></article>
+    <article class="guide-card"><span class="tip-label">05 · Maths & science</span><h3>Show your working</h3><p>Write the formula or principle, substitute carefully, keep units visible and check whether the final answer makes sense.</p></article>
+    <article class="guide-card"><span class="tip-label">06 · Languages & social science</span><h3>Practise clear expression</h3><p>Plan answers with a beginning, organised points and a short conclusion where appropriate. Practise writing, not just reading.</p></article></div>
+    <div class="section-heading"><div><h2>Exam-day habits</h2><p>A calm checklist to practise beforehand</p></div></div><div class="guide-card"><ul><li>Read instructions and question choices carefully.</li><li>Plan your time across the paper; keep a little time to review.</li><li>Answer what is asked and make handwriting easy to read.</li><li>Label diagrams, maps, units and steps where relevant.</li><li>If a question feels difficult, move on and return later.</li><li>Pack permitted stationery and required documents the night before.</li></ul></div>
+    <div class="section-heading"><div><h2>A balanced study routine</h2><p>Consistency without burning out</p></div></div><div class="guide-card"><h3>Try this flexible pattern</h3><ul><li>Choose 2–3 realistic priorities for the day.</li><li>Start with one focused block of 25 minutes.</li><li>Take a 5-minute movement or water break.</li><li>Switch subject or task after a couple of blocks.</li><li>Finish by recalling what you learned and choosing tomorrow's first task.</li><li>Protect regular meals, sleep and free time. Rest is part of learning.</li></ul></div></section>`;
+    updateFocusDisplay();
+  }
+  function updateFocusDisplay() {
+    const clock=document.getElementById("focus-clock"), caption=document.getElementById("focus-caption"), toggle=document.getElementById("focus-toggle");
+    if(clock) clock.textContent=`${String(Math.floor(focusSeconds/60)).padStart(2,"0")}:${String(focusSeconds%60).padStart(2,"0")}`;
+    if(caption&&!focusInterval) caption.textContent=focusSeconds===0?"Session complete · Take a proper break.":"Ready when you are · Take a 5-minute break afterwards";
+    if(toggle) toggle.textContent=focusInterval?"Pause timer":focusSeconds===0?"Start again":"Start focus";
+  }
+  function stopFocusTimer(){if(focusInterval)clearInterval(focusInterval);focusInterval=null;}
+  function handleFocusAction(action){
+    if(action==="reset"){stopFocusTimer();focusSeconds=1500;updateFocusDisplay();return;}
+    if(focusInterval){stopFocusTimer();updateFocusDisplay();return;}
+    if(focusSeconds===0)focusSeconds=1500;
+    focusInterval=setInterval(()=>{focusSeconds=Math.max(0,focusSeconds-1);if(focusSeconds===0){stopFocusTimer();showToast("Focus session complete. Take a short break.");}updateFocusDisplay();},1000);
+    updateFocusDisplay();
   }
 
   function todayISO() {
@@ -267,6 +304,7 @@
     if (currentView === "home") renderHome();
     else if (currentView === "subjects") renderSubjects();
     else if (currentView === "planner") renderPlanner();
+    else if (currentView === "guide") renderGuide();
     else if (currentView === "subject") renderSubjectDetail();
     updateNavigation();
   }
@@ -283,9 +321,11 @@
     const navButton = event.target.closest("[data-nav]");
     if (navButton) {
       const next = navButton.dataset.nav;
-      if (["home", "subjects", "planner"].includes(next)) setView(next);
+      if (["home", "subjects", "planner", "guide"].includes(next)) setView(next);
       return;
     }
+    const focusButton = event.target.closest("[data-focus]");
+    if (focusButton) { handleFocusAction(focusButton.dataset.focus); return; }
     const subjectButton = event.target.closest("[data-subject]");
     if (subjectButton) {
       selectedSubjectId = subjectButton.dataset.subject;
@@ -322,9 +362,10 @@
     state: () => JSON.parse(JSON.stringify(state)),
     view: () => currentView,
     openSubject: id => { if (SUBJECTS.some(subject => subject.id === id)) { selectedSubjectId = id; currentView = "subject"; render(); } },
-    openView: view => { if (["home", "subjects", "planner"].includes(view)) setView(view); },
+    openView: view => { if (["home", "subjects", "planner", "guide"].includes(view)) setView(view); },
     addTask: (title, subjectId = "", date = todayISO()) => { state.tasks.push({ id: makeId(), title, subjectId, date, done: false }); saveState(); renderPlanner(); },
-    clearTasks: () => { state.tasks = []; saveState(); renderPlanner(); }
+    clearTasks: () => { state.tasks = []; saveState(); renderPlanner(); },
+    focusSeconds: () => focusSeconds
   };
 
   render();

@@ -130,3 +130,6 @@ test('touch targets and install icons are sized for mobile', () => {
     assert.equal(png.readUInt32BE(20), expected);
   }
 });
+
+test('study guide and focus timer work without preloading chapters',()=>{const {api,app}=boot();api.openView('guide');for(const p of ['Your study guide','Active recall','Spaced revision','Practise under time','Exam-day habits','balanced study routine','Focus timer'])assert.ok(app.innerHTML.toLowerCase().includes(p.toLowerCase()),'missing '+p);assert.equal(api.focusSeconds(),1500);assert.ok(api.subjects().every(s=>s.chapterCount===0));});
+test('home screen links to guide and planner',()=>{const {api,app}=boot();api.openView('home');assert.match(app.innerHTML,/Make today count/);assert.match(app.innerHTML,/data-nav="guide"/);assert.match(app.innerHTML,/data-nav="planner"/);});

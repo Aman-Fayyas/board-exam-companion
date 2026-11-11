@@ -1,5 +1,5 @@
 "use strict";
-const CACHE_NAME = "boardmate-shell-v1";
+const CACHE_NAME = "boardmate-shell-v2";
 const APP_SHELL = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.webmanifest", "./assets/icon.svg", "./assets/icon-192.png", "./assets/icon-512.png"];
 
 self.addEventListener("install", event => {
