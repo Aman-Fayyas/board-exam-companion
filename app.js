@@ -271,6 +271,7 @@
     const title = String(formData.get("title") || "").trim();
     if (!title) { showToast("Add a task name first."); return; }
     state.tasks.push({ id: makeId(), title, subjectId: String(formData.get("subject") || ""), date: String(formData.get("date") || ""), done: false });
+    taskFilter = "all";
     saveState();
     renderPlanner();
     showToast("Added to your study plan.");
