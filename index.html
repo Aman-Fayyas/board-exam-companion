@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#173e3a">
+  <meta name="description" content="A calm, lightweight CBSE Class 10 board-exam companion. Your subjects are ready; chapter content will be added when you share your list.">
+  <meta name="application-name" content="Boardmate">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./assets/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Boardmate — Your board prep, organised</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#home" aria-label="Boardmate home" data-nav="home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" focusable="false"><path d="M7 6.5c3.6-1.1 6.7-.5 9 1.3 2.3-1.8 5.4-2.4 9-1.3v18c-3.6-1.1-6.7-.5-9 1.3-2.3-1.8-5.4-2.4-9-1.3z"/><path d="M16 8v17.8M10.5 11.2c1.6-.2 3 .1 4.2.8M21.5 11.2c-1.6-.2-3 .1-4.2.8"/></svg>
+        </span>
+        <span class="brand-copy"><strong>boardmate</strong><small>CLASS 10 · 2026–27</small></span>
+      </a>
+      <span class="offline-pill"><span class="status-dot"></span> Built for offline</span>
+    </header>
+
+    <main id="app" class="main-content" tabindex="-1" aria-live="off">
+      <section class="loading-state" aria-label="Loading Boardmate">
+        <span class="loading-mark">b.</span>
+        <p>Getting your study space ready…</p>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Main navigation">
+      <button class="nav-item is-active" type="button" data-nav="home" aria-current="page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3.5 10 8.5-7 8.5 7v10a1 1 0 0 1-1 1h-5.2v-6.2h-4.6V21H4.5a1 1 0 0 1-1-1z"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="nav-item" type="button" data-nav="subjects">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>Subjects</span>
+      </button>
+      <button class="nav-item" type="button" data-nav="planner">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M7.5 2.5v4M16.5 2.5v4M3.5 9h17M8 13h3M8 16.5h7"/></svg>
+        <span>Planner</span>
+      </button>
+    </nav>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js" defer></script>
+</body>
+</html>
