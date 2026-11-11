@@ -29,6 +29,7 @@
   let toastTimer = null;
   let focusSeconds = 1500;
   let focusInterval = null;
+  let taskFilter = "all";
   let state = loadState();
 
   function loadState() {
@@ -244,6 +245,7 @@
     const sorted = [...state.tasks].sort((a, b) => Number(a.done) - Number(b.done) || String(a.date || "9999").localeCompare(String(b.date || "9999")));
     const done = state.tasks.filter(task => task.done).length;
     const pending = state.tasks.length - done;
+    const visibleTasks = sorted.filter(task => taskFilter === "all" || (taskFilter === "open" && !task.done) || (taskFilter === "done" && task.done));
     app.innerHTML = `
       <section aria-labelledby="planner-title">
         <p class="eyebrow">One day at a time</p><h1 class="page-heading" id="planner-title">Study planner</h1>
@@ -255,8 +257,9 @@
           <div class="form-row"><div><label class="form-label" for="task-subject">Subject</label><select id="task-subject" class="form-control" name="subject"><option value="">Any subject</option>${SUBJECTS.map(subject => `<option value="${subject.id}">${escapeHTML(subject.title)}</option>`).join("")}</select></div><div><label class="form-label" for="task-date">Date</label><input id="task-date" class="form-control" type="date" name="date" value="${todayISO()}"></div></div>
           <button class="primary-button" type="submit">${icon("plus")} Add to my plan</button>
         </form>
-        <div class="section-heading"><div><h2>Your tasks</h2><p>Stored on this phone</p></div></div>
-        ${sorted.length ? `<div class="task-list">${sorted.map(renderTask).join("")}</div>` : '<div class="planner-empty">Your plan is clear for now.<br>Add one small task to get started.</div>'}
+        <div class="section-heading"><div><h2>Your tasks</h2><p>Stored on this phone</p></div>${done ? '<button class="text-button" type="button" data-clear-done>Clear completed</button>' : ''}</div>
+        <div class="filter-pills" role="group" aria-label="Filter tasks">${[["all","All"],["open","To do"],["done","Done"]].map(([value,label]) => `<button class="filter-pill ${taskFilter === value ? "active" : ""}" type="button" data-task-filter="${value}" aria-pressed="${taskFilter === value}">${label}</button>`).join("")}</div>
+        ${visibleTasks.length ? `<div class="task-list">${visibleTasks.map(renderTask).join("")}</div>` : `<div class="planner-empty">${taskFilter === "done" ? "No completed tasks yet." : taskFilter === "open" ? "You're all caught up." : "Your plan is clear for now. Add one small task to get started."}</div>`}
       </section>`;
     document.getElementById("task-form")?.addEventListener("submit", addTask);
   }
@@ -346,12 +349,20 @@
     if (deleteButton) {
       state.tasks = state.tasks.filter(item => item.id !== deleteButton.dataset.deleteTask);
       saveState(); renderPlanner(); showToast("Task removed.");
+      return;
+    }
+    const filterButton = event.target.closest("[data-task-filter]");
+    if (filterButton) { taskFilter = filterButton.dataset.taskFilter; renderPlanner(); return; }
+    if (event.target.closest("[data-clear-done]")) {
+      state.tasks = state.tasks.filter(item => !item.done);
+      saveState(); renderPlanner(); showToast("Completed tasks cleared.");
     }
   });
 
   window.addEventListener("hashchange", () => {
     if (location.hash === "#subjects") setView("subjects");
     else if (location.hash === "#planner") setView("planner");
+    else if (location.hash === "#guide") setView("guide");
     else if (location.hash === "#home" || !location.hash) setView("home");
   });
 
